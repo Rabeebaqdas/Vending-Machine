@@ -23,6 +23,8 @@ export const VendingMachineProvider = ({ children }) => {
     const [more,setmore] = useState('');
     const [confrim,setconfrim] = useState('');
     const [transfer,settransfer] = useState('');
+    const [loading,setLoading] = useState(false);
+
 
 
     useEffect(() => {
@@ -77,9 +79,9 @@ export const VendingMachineProvider = ({ children }) => {
     const myDounts = async () => {
         try {
             const accounts = await ethereum.request({ method: "eth_accounts" });
-            if (accounts.length) {
-                const donuts = await getEthereumContract().donut(accounts[0])
-                setMyDonuts(parseInt(donuts._hex));
+            if (accounts?.length) {
+                const donuts = await getEthereumContract()?.donut(accounts[0])
+                setMyDonuts(parseInt(donuts?._hex));
             }
         } catch (err) {
             setError(err.message);
@@ -94,10 +96,10 @@ export const VendingMachineProvider = ({ children }) => {
         setconfrim('')
         settransfer('')
         try {
-
+            setLoading(true)
             var load = await getEthereumContract().purchase(buyDonuts, {
                 from: currentAccount,
-                value: ethers.utils.parseEther(buyDonuts),
+                value: ethers.utils.parseEther(`${0.006 * buyDonuts}`),
                 gasLimit: 3000000,
                 gasPrice: null
             })
@@ -106,8 +108,11 @@ export const VendingMachineProvider = ({ children }) => {
             setSuccess(`${buyDonuts} ${buyDonuts > 1 ? "Donuts" : "Donut"} Purchased`);
            if(getEthereumContract()) quantity();
            if(getEthereumContract() && currentAccount) myDounts();
+           setLoading(false)
+
         }
         catch (err) {
+           setLoading(false)
             console.log(err)
             setError(err.message);
         }
@@ -115,7 +120,8 @@ export const VendingMachineProvider = ({ children }) => {
 
     const Balance = async() => {
         const balance = await getEthereumContract().checkBalance();
-        setMsg(`The Balance of Vending Machine is : ${parseInt(ethers.utils.formatEther(balance._hex))} Ether`)
+        console.log(ethers.utils.formatEther(balance.toString()))
+        setMsg(`The Balance of Vending Machine is : ${ethers.utils.formatEther(balance.toString())} Ether`)
     }
 
 
@@ -126,6 +132,7 @@ export const VendingMachineProvider = ({ children }) => {
         setconfrim('')
         settransfer('')
         try{
+           setLoading(true)
             var load = await getEthereumContract().restock(more,{
                 from: currentAccount,
                 gasLimit: 3000000,
@@ -135,9 +142,11 @@ export const VendingMachineProvider = ({ children }) => {
             setmore("");
             setconfrim("Donuts refilled successfully");
             if(getEthereumContract()) quantity();
+           setLoading(false)
             
 
         }catch(err){
+           setLoading(false)
             setError(err.message);
         }
     }
@@ -148,6 +157,7 @@ export const VendingMachineProvider = ({ children }) => {
         setconfrim('')
         settransfer('')
         try{
+           setLoading(true)
             var withdraw = await getEthereumContract().getBalance({
                 gasLimit: 3000000,
                 gasPrice: null
@@ -156,7 +166,10 @@ export const VendingMachineProvider = ({ children }) => {
             await withdraw.wait();
             settransfer("Amount has been successfully transfered to our account");
             if(getEthereumContract()) Balance();
+           setLoading(false)
+            
         }catch(err){
+           setLoading(false)
             setError("Vending Machine balance is zero");
         }
     } 
@@ -165,7 +178,7 @@ export const VendingMachineProvider = ({ children }) => {
 
     return (
 
-        <VendingMachine.Provider value={{ connectWallet, error, total, myDonuts,withDraw, setbuyDonuts,currentAccount,confrim, buying, success,Refill, Balance, msg, setmore,transfer }}>
+        <VendingMachine.Provider value={{ connectWallet, error, total, myDonuts,withDraw, setbuyDonuts,currentAccount,confrim, buying, success,Refill, Balance, msg, setmore,transfer,loading }}>
             {children}
         </VendingMachine.Provider>
     )
