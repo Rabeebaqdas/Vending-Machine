@@ -23,7 +23,7 @@ contract VendingMachine {
 
     function purchase(uint amount) public payable{
         require(donut[address(this)] >= amount,"Not enough donuts in stock to fullfill your request");
-        require(msg.value >= 1 ether * amount,"Payment in insufficient");
+        require(msg.value >= 0.006 ether * amount,"Payment in insufficient");
 
         donut[address(this)] -= amount;
         donut[msg.sender] += amount;
