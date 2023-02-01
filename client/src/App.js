@@ -4,8 +4,8 @@ import { useContext } from 'react';
 import './App.css';
 import { VendingMachine } from './context/VendingMachineContext';
 function App() {
-const {connectWallet,error,total,myDonuts,withDraw,setbuyDonuts,transfer,buying,success, Balance, msg,confrim , setmore,Refill,currentAccount} = useContext(VendingMachine)
-
+const {connectWallet,error,total,myDonuts,withDraw,setbuyDonuts,transfer,buying,success, Balance, msg,confrim , setmore,Refill,currentAccount,loading} = useContext(VendingMachine)
+const owner = "0xbb45AF76f5198db4e38bA3668993c82739343c40" 
   return (
      
     <div>
@@ -16,7 +16,12 @@ const {connectWallet,error,total,myDonuts,withDraw,setbuyDonuts,transfer,buying,
            </div>
             
            <div className='navbar-end'>
-        <button className='button is-link' onClick={connectWallet}>Connect Wallet</button>
+           {currentAccount ? 
+         <button className='button is-link'>{`${currentAccount.slice(0,5)}...${currentAccount.slice(currentAccount.length - 4)}`}</button>
+         :
+         <button className='button is-link' onClick={connectWallet} disabled= {loading}>Connect Wallet</button>
+     
+      }
            </div>
          </div>
        </nav>
@@ -37,20 +42,20 @@ const {connectWallet,error,total,myDonuts,withDraw,setbuyDonuts,transfer,buying,
          <div className='control'>
            <input type="number" className='input' placeholder='Enter the amount of donuts you wants to buy...' onChange={(e)=>setbuyDonuts(e.target.value)} />
          </div>
-             <button className='button is-primary mt-2' onClick={buying}>Buy</button> <br/>
+             <button className='button is-primary mt-2' onClick={buying} disabled={loading}>Buy</button> <br/>
             
        </div>
          </div>
          <div className='container mt-5'>
-    { currentAccount == "0xfdb039899f5bfeac8bc3cd898a0e807d31849fde" &&
+    {currentAccount?.toLowerCase() == owner.toLowerCase() &&
       <div className='field'>
          <label className='label'>Refill Donuts</label>
          <div className='control'>
            <input type="number" className='input' placeholder='Enter the amount of donuts you wants to refill...' onChange={(e)=>setmore(e.target.value)} />
          </div>
-             <button className='button is-primary mt-2' onClick={Refill}>Refill</button><br />
+             <button className='button is-primary mt-2' onClick={Refill} disabled={loading}>Refill</button><br />
       
-             <button className='button is-primary mt-5' onClick={Balance}>Balance</button><br />
+             <button className='button is-primary mt-5' onClick={Balance} disabled={loading}>Balance</button><br />
              <div>
              <section>
          <div className='container mt-2' style={{color:'orange'}}>
@@ -58,7 +63,7 @@ const {connectWallet,error,total,myDonuts,withDraw,setbuyDonuts,transfer,buying,
          </div>
        </section>
              </div>
-             <button className='button is-primary mt-5' onClick={withDraw}>Withdraw</button><br />
+             <button className='button is-primary mt-5' onClick={withDraw} disabled={loading}>Withdraw</button><br />
 
     
 
